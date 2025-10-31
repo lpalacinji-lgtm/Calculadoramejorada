@@ -136,9 +136,10 @@ with col_result:
         st.success(f"**Tratamiento:** {resultados['Fecha de inicio']} → {resultados['Fecha de finalización']}")
         colA, colB, colC = st.columns(3)
         colA.metric("Inyecciones", resultados["Total de inyecciones"])
-        colB.metric("Volumen (ml)", resultados["Volumen total (ml)"])
+        #colB.metric("Volumen (ml)", resultados["Volumen total (ml)"])
         colC.metric("Ampollas", resultados["Ampollas necesarias"])
 
         st.caption("📆 Distribución mensual:")
         st.info(f"**Este mes:** {resultados['Ampollas este mes']} ampollas ({resultados['Volumen este mes (ml)']} ml)")
         st.info(f"**Próximo mes:** {resultados['Ampollas próximo mes']} ampollas ({resultados['Volumen próximo mes (ml)']} ml)")
+
