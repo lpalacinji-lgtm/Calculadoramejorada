@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime
 from calculator import calcular_tabletas, calcular_ampollas
 from PIL import Image
-
+st.write("🕒 Fecha detectada por el servidor:", datetime.today())
 # ======================================
 # CONFIGURACIÓN GENERAL
 # ======================================
@@ -162,3 +162,4 @@ with col_result:
                 <strong>📌 Próximo mes:</strong> {resultados['Ampollas próximo mes']} ampolla(s) ({resultados['Dosis por inyección (ml)']} ml)
             </div>
         """, unsafe_allow_html=True)
+
