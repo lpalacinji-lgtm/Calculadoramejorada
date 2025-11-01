@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime
 from calculator import calcular_tabletas, calcular_ampollas
 from PIL import Image
+import pytz
 
 # ======================================
 # CONFIGURACIÓN GENERAL
@@ -79,7 +80,7 @@ with col_title:
         </div>
         <p style='margin-top:-0.8rem; color:gray; font-size:0.9rem;'>SISTEMAS DE INFORMACIÓN</p>
     """, unsafe_allow_html=True)
-st.write("🕒 Fecha detectada por el servidor:", datetime.today())
+
 # ======================================
 # LAYOUT PRINCIPAL
 # ======================================
@@ -94,7 +95,12 @@ with col_form:
     tipo = st.selectbox("Tipo:", ["Tableta 💊", "Ampolla 💉"])
     frecuencia = st.number_input("Frecuencia (horas):", min_value=1, max_value=24, value=8)
     duracion = st.number_input("Duración (días):", min_value=1, max_value=120, value=1)
-    fecha_orden = st.date_input("Fecha de orden:", datetime.today())
+
+    # ✅ Fecha local ajustada a zona horaria de Colombia
+    zona_colombia = pytz.timezone("America/Bogota")
+    fecha_local = datetime.now(zona_colombia).date()
+    fecha_orden = st.date_input("Fecha de orden:", fecha_local)
+
     inicio_mismo_dia = st.checkbox("Inicia el mismo día", value=True)
     st.caption("Si no marca Check, inicia el día siguiente.")
 
@@ -125,7 +131,6 @@ with col_result:
 
         st.caption("📆 Distribución mensual:")
 
-        # ✅ Nota automática si el tratamiento inicia en otro mes
         fecha_inicio = datetime.strptime(resultados["Fecha de inicio"], "%Y-%m-%d").date()
         if fecha_inicio.month != fecha_orden.month:
             st.warning(f"📌 Nota: La orden inicia en el mes siguiente ({fecha_inicio.strftime('%B')}). Todas las tabletas se asignan a ese mes.")
@@ -149,7 +154,6 @@ with col_result:
 
         st.caption("📆 Distribución mensual:")
 
-        # ✅ Nota automática si el tratamiento inicia en otro mes
         fecha_inicio = datetime.strptime(resultados["Fecha de inicio"], "%Y-%m-%d").date()
         if fecha_inicio.month != fecha_orden.month:
             st.warning(f"📌 Nota: La orden inicia en el mes siguiente ({fecha_inicio.strftime('%B')}). Todas las ampollas se asignan a ese mes.")
@@ -162,5 +166,3 @@ with col_result:
                 <strong>📌 Próximo mes:</strong> {resultados['Ampollas próximo mes']} ampolla(s) ({resultados['Dosis por inyección (ml)']} ml)
             </div>
         """, unsafe_allow_html=True)
-
-
