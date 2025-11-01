@@ -13,12 +13,12 @@ st.set_page_config(
 )
 
 # ======================================
-# ESTILO HOSPITALARIO AZUL AJUSTADO
+# ESTILO HOSPITALARIO AZUL + AVISO DESTACADO
 # ======================================
 st.markdown("""
     <style>
         .block-container {
-            padding-top: 2rem;  /* antes 1rem */
+            padding-top: 2rem;
             padding-bottom: 0rem;
             padding-left: 2rem;
             padding-right: 2rem;
@@ -56,7 +56,6 @@ st.markdown("""
             font-size: 1.3rem;
             font-weight: 700;
         }
-        /* Alinear logo y título */
         .logo-title-container {
             display: flex;
             align-items: center;
@@ -107,8 +106,6 @@ with col_form:
         calcular = st.button("🧮 Calcular Tabletas", use_container_width=True)
     else:
         dosis_inyeccion = st.number_input("Dosis por inyección (ml):", min_value=0.1, step=0.1, value=1.0)
-        volumen_ampolla = st.number_input("Volumen por ampolla (ml):", min_value=0.5, step=0.5, value=1.0)
-        esterilidad_horas = st.number_input("Esterilidad (horas):", min_value=6, step=6, value=24)
         calcular = st.button("🧮 Calcular Ampollas", use_container_width=True)
 
 # ======================================
@@ -127,19 +124,41 @@ with col_result:
         colC.metric("Presentaciones", resultados["Presentaciones necesarias"])
 
         st.caption("📆 Distribución mensual:")
-        st.info(f"**Este mes:** {resultados['Tabletas este mes']} tabletas")
-        st.info(f"**Próximo mes:** {resultados['Tabletas próximo mes']} tabletas")
+
+        # ✅ Nota automática si el tratamiento inicia en otro mes
+        fecha_inicio = datetime.strptime(resultados["Fecha de inicio"], "%Y-%m-%d").date()
+        if fecha_inicio.month != fecha_orden.month:
+            st.warning(f"📌 Nota: La orden inicia en el mes siguiente ({fecha_inicio.strftime('%B')}). Todas las tabletas se asignan a ese mes.")
+
+        st.markdown(f"""
+            <div style='background-color:#fff3cd; border-left:6px solid #ffcc00; padding:0.8rem; border-radius:8px; margin-bottom:0.5rem;'>
+                <strong>📌 Este mes:</strong> {resultados['Tabletas este mes']} tabletas
+            </div>
+            <div style='background-color:#fff3cd; border-left:6px solid #ffcc00; padding:0.8rem; border-radius:8px;'>
+                <strong>📌 Próximo mes:</strong> {resultados['Tabletas próximo mes']} tabletas
+            </div>
+        """, unsafe_allow_html=True)
 
     elif tipo == "Ampolla 💉" and calcular:
-        resultados = calcular_ampollas(frecuencia, duracion, dosis_inyeccion, volumen_ampolla, esterilidad_horas, fecha_orden, inicio_mismo_dia)
+        resultados = calcular_ampollas(frecuencia, duracion, dosis_inyeccion, fecha_orden, inicio_mismo_dia)
 
         st.success(f"**Tratamiento:** {resultados['Fecha de inicio']} → {resultados['Fecha de finalización']}")
-        colA, colB, colC = st.columns(3)
+        colA, colB = st.columns(2)
         colA.metric("Inyecciones", resultados["Total de inyecciones"])
-        colC.metric("Ampollas", resultados["Ampollas necesarias"])
+        colB.metric("Ampollas utilizadas", resultados["Ampollas necesarias"])
 
         st.caption("📆 Distribución mensual:")
-        st.info(f"**Este mes:** {resultados['Ampollas este mes']} ampollas ({resultados['Volumen este mes (ml)']} ml)")
-        st.info(f"**Próximo mes:** {resultados['Ampollas próximo mes']} ampollas ({resultados['Volumen próximo mes (ml)']} ml)")
 
+        # ✅ Nota automática si el tratamiento inicia en otro mes
+        fecha_inicio = datetime.strptime(resultados["Fecha de inicio"], "%Y-%m-%d").date()
+        if fecha_inicio.month != fecha_orden.month:
+            st.warning(f"📌 Nota: La orden inicia en el mes siguiente ({fecha_inicio.strftime('%B')}). Todas las ampollas se asignan a ese mes.")
 
+        st.markdown(f"""
+            <div style='background-color:#fff3cd; border-left:6px solid #ffcc00; padding:0.8rem; border-radius:8px; margin-bottom:0.5rem;'>
+                <strong>📌 Este mes:</strong> {resultados['Ampollas este mes']} ampolla(s) ({resultados['Dosis por inyección (ml)']} ml)
+            </div>
+            <div style='background-color:#fff3cd; border-left:6px solid #ffcc00; padding:0.8rem; border-radius:8px;'>
+                <strong>📌 Próximo mes:</strong> {resultados['Ampollas próximo mes']} ampolla(s) ({resultados['Dosis por inyección (ml)']} ml)
+            </div>
+        """, unsafe_allow_html=True)
