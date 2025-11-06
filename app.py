@@ -68,7 +68,7 @@ st.markdown("""
 # ======================================
 # ENCABEZADO CON LOGO Y TÍTULO CENTRADO
 # ======================================
-col_logo, col_title = st.columns([0.5, 1])
+col_logo, col_title = st.columns([0.12, 1])
 with col_logo:
     logo = Image.open("Logo/LOGO HORIZONTAL.png")
     st.image(logo, width=350)
@@ -166,6 +166,7 @@ with col_result:
                 <strong>📌 Próximo mes:</strong> {resultados['Ampollas próximo mes']} ampolla(s) ({resultados['Dosis por inyección (ml)']} ml)
             </div>
         """, unsafe_allow_html=True)
+
 
 
 
